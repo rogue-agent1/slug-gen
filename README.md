@@ -1,6 +1,11 @@
 # slug-gen
-URL slug generator. Handles unicode, special chars. Zero dependencies.
+
+URL slug generator.
+
+Zero dependencies. Python 3.8+.
+
 ## Usage
+
 ```bash
-python3 slug_gen.py "Hello World! Café résumé"  # hello-world-cafe-resume
+python3 slug_gen.py --help
 ```
