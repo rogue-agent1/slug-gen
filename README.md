@@ -1,11 +1,14 @@
 # slug-gen
 
-Generate URL slugs from text.
-
-Zero dependencies. Python 3.8+.
+URL slug generator with transliteration
 
 ## Usage
 
 ```bash
 python3 slug_gen.py --help
 ```
+
+## Features
+
+- Zero dependencies (Python 3.8+)
+- Single file implementation
