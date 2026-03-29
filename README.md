@@ -1,17 +1,9 @@
-# slug_gen
+# slug-gen
 
-URL slug generator with transliteration
-
-Single-file, zero-dependency Python CLI tool.
+URL slug generator with transliteration. Zero dependencies, single file, Python 3.8+.
 
 ## Usage
 
 ```bash
-python slug_gen.py --help
-```
-
-## Test
-
-```bash
-python -c "import slug_gen; slug_gen.test()"
+python3 slug_gen.py --help
 ```

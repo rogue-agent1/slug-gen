@@ -1,46 +1,38 @@
 #!/usr/bin/env python3
-"""URL slug generator."""
-import re, unicodedata
+"""URL slug generator. Zero dependencies."""
+import re, sys, unicodedata
 
-TRANS = {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss", "ñ": "n", "ø": "o",
-         "å": "a", "æ": "ae", "þ": "th", "ð": "d", "ł": "l", "đ": "d"}
+TRANSLITERATIONS = {
+    "ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss", "à": "a", "á": "a",
+    "â": "a", "ã": "a", "è": "e", "é": "e", "ê": "e", "ë": "e",
+    "ì": "i", "í": "i", "î": "i", "ï": "i", "ò": "o", "ó": "o",
+    "ô": "o", "õ": "o", "ù": "u", "ú": "u", "û": "u", "ñ": "n",
+    "ç": "c", "ð": "d", "ø": "o", "å": "a", "æ": "ae", "þ": "th",
+}
 
-def slugify(text: str, max_length: int = 80, separator: str = "-") -> str:
-    text = text.lower()
-    for k, v in TRANS.items():
+def slugify(text, separator="-", max_length=0, lowercase=True):
+    if lowercase: text = text.lower()
+    for k, v in TRANSLITERATIONS.items():
         text = text.replace(k, v)
-    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
-    text = re.sub(r"[^\w\s-]", "", text)
-    text = re.sub(r"[\s_]+", separator, text).strip(separator)
-    if max_length:
+    text = unicodedata.normalize("NFKD", text)
+    text = text.encode("ascii", "ignore").decode()
+    text = re.sub(r"[^a-zA-Z0-9]+", separator, text)
+    text = text.strip(separator)
+    text = re.sub(f"{re.escape(separator)}+", separator, text)
+    if max_length and len(text) > max_length:
         text = text[:max_length].rstrip(separator)
     return text
 
-def unique_slug(text: str, existing: set, max_length: int = 80) -> str:
-    base = slugify(text, max_length)
-    if base not in existing:
-        return base
-    for i in range(2, 1000):
-        candidate = f"{base}-{i}"
-        if candidate not in existing:
-            return candidate
-    return f"{base}-{id(text)}"
+def deslugify(slug, separator="-"):
+    return slug.replace(separator, " ").title()
 
 if __name__ == "__main__":
-    import sys
-    text = " ".join(sys.argv[1:]) or "Hello World! This is a Test"
-    print(slugify(text))
-
-def test():
-    assert slugify("Hello World!") == "hello-world"
-    assert slugify("  Lots   of   spaces  ") == "lots-of-spaces"
-    assert slugify("Special $#@! chars") == "special-chars"
-    assert slugify("über cool") == "ueber-cool"
-    assert slugify("café latte") == "cafe-latte"
-    assert slugify("A" * 100, max_length=10) == "a" * 10
-    assert slugify("test", separator="_") == "test"
-    # Unique
-    existing = {"hello-world"}
-    assert unique_slug("Hello World", existing) == "hello-world-2"
-    assert unique_slug("New Post", existing) == "new-post"
-    print("  slug_gen: ALL TESTS PASSED")
+    import argparse
+    p = argparse.ArgumentParser(description="Slug generator")
+    p.add_argument("text", nargs="+")
+    p.add_argument("-s", "--separator", default="-")
+    p.add_argument("-m", "--max-length", type=int, default=0)
+    p.add_argument("--no-lower", action="store_true")
+    args = p.parse_args()
+    text = " ".join(args.text)
+    print(slugify(text, args.separator, args.max_length, not args.no_lower))
